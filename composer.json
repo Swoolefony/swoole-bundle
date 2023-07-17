@@ -1,0 +1,49 @@
+{
+    "name": "swoolefony/swoole-bundle",
+    "type": "symfony-bundle",
+    "description": "A Swoole bundle for Symfony.",
+    "keywords": [
+        "Swoole",
+        "async",
+        "coroutine"
+    ],
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Chad Sikorra",
+            "email": "Chad.Sikorra@gmail.com",
+            "homepage": "https://www.chadsikorra.com/"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "symfony/console": "^6.3",
+        "symfony/dependency-injection": "^6.3",
+        "symfony/framework-bundle": "^6.3",
+        "symfony/http-foundation": "^6.3",
+        "symfony/http-kernel": "^6.3",
+        "symfony/runtime": "^6.3"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "swoole/ide-helper": "~5.0.0"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Swoolefony\\SwooleBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Swoolefony\\SwooleBundle\\Tests\\": "tests/"
+        }
+    }
+}
