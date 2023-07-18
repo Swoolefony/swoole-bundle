@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Swoolefony\SwooleBundle\Server\Http;
+namespace Swoolefony\SwooleBundle\Server;
 
 use DateTimeImmutable;
 use DateTimeInterface;

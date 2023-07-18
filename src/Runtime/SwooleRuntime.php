@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Runtime;
 
-use Swoolefony\SwooleBundle\Runtime\Runner\HttpRunner;
-use Swoolefony\SwooleBundle\Server\Http\Handler\RequestHandler;
-use Swoolefony\SwooleBundle\Server\Http\HttpServerFactory;
-use Swoolefony\SwooleBundle\Server\Http\Options;
+use Swoolefony\SwooleBundle\Server\Options;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Runtime\RunnerInterface;
 use Symfony\Component\Runtime\SymfonyRuntime;
@@ -36,36 +33,24 @@ class SwooleRuntime extends SymfonyRuntime
     public function getRunner(?object $application): RunnerInterface
     {
         if ($application instanceof HttpKernelInterface) {
-            return $this->makeHttpRunner($application);
+            return $this->makeServerRunner($application);
         }
 
         return parent::getRunner($application);
     }
 
-    private function makeHttpRunner(HttpKernelInterface $httpKernel): HttpRunner
+    private function makeServerRunner(HttpKernelInterface $httpKernel): ServerRunner
     {
         $options = new Options(
             $this->ip,
             $this->port,
-        );
-        $options->setRequestHandler(
-            (new RequestHandler(
-                $httpKernel,
-                $this->mode
-            ))(...)
+            $this->mode,
         );
 
-        return match ($this->mode) {
-            Mode::Http => new HttpRunner(
-                new HttpServerFactory(),
-                $options,
-                $httpKernel,
-            ),
-            default => throw new \RuntimeException(sprintf(
-                'The mode with name %s was not expected.',
-                $this->mode->name,
-            ))
-        };
+        return new ServerRunner(
+            $options,
+            $httpKernel,
+        );
     }
 
     /**

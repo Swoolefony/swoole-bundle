@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Swoolefony\SwooleBundle\Server\Http;
+namespace Swoolefony\SwooleBundle\Server\Type;
 
-use Swoole\Http\Server as SwooleServer;
+use Swoole\WebSocket\Server as SwooleServer;
+use Swoolefony\SwooleBundle\Server\Stats;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 
-readonly class Server implements ServerInterface
+readonly class WebsocketServer implements ServerInterface
 {
     public function __construct(private SwooleServer $swooleServer)
     {
@@ -16,7 +17,7 @@ readonly class Server implements ServerInterface
     public function run(): void
     {
         if (!$this->swooleServer->start()) {
-            throw new \RuntimeException('Unable to start HTTP server.');
+            throw new \RuntimeException('Unable to start websocket server.');
         }
     }
 
