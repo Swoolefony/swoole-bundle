@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Runtime;
 
-use Swoole\Runtime;
+use Co;
 use Swoolefony\SwooleBundle\Server\Options;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Runtime\RunnerInterface;
@@ -36,7 +36,7 @@ class SwooleRuntime extends SymfonyRuntime
         if ($application instanceof HttpKernelInterface) {
             return $this->makeServerRunner($application);
         }
-        Runtime::enableCoroutine();
+        Co::set(['hook_flags'=> SWOOLE_HOOK_ALL]);
 
         return parent::getRunner($application);
     }
