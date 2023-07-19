@@ -49,6 +49,7 @@
         }
     },
     "scripts": {
-        "tests": "phpunit"
+        "tests": "phpunit",
+        "analyze": "phpstan"
     }
 }
