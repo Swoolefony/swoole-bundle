@@ -23,6 +23,6 @@ readonly class HttpServer implements ServerInterface
 
     public function getStats(): Stats
     {
-        return new Stats($this->swooleServer->stats());
+        return new Stats((array) $this->swooleServer->stats());
     }
 }
