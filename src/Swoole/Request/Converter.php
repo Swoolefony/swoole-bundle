@@ -7,6 +7,7 @@ namespace Swoolefony\SwooleBundle\Swoole\Request;
 use Swoole\Http\Request as SwooleRequest;
 use Swoolefony\SwooleBundle\Runtime\Mode;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
+use function array_change_key_case;
 use function array_merge;
 use function is_string;
 
@@ -31,7 +32,7 @@ class Converter
             ),
             (array) $request->cookie,
             (array) $request->files,
-            (array) $request->server,
+            array_change_key_case((array) $request->server, CASE_UPPER),
             $content === false ? null : $content,
         );
 
