@@ -177,6 +177,13 @@ final class ConverterTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, string[]>|null $cookies
+     * @param array<string, array<string, mixed>>|null $files
+     * @param array<string, scalar>|null $server
+     * @param array<string, scalar>|null $get
+     * @param array<string, scalar>|null $post
+     */
     private static function makeMockSwooleRequest(
         int $fd = 1,
         string $path = '/foo',
@@ -188,6 +195,7 @@ final class ConverterTest extends TestCase
         ?array $get = null,
         ?array $post = null,
     ): Request&MockInterface {
+        /** @var Request&MockInterface $swooleRequest */
         $swooleRequest = Mockery::mock(Request::class);
         $swooleRequest->fd = $fd;
         $swooleRequest->server = array_merge(
