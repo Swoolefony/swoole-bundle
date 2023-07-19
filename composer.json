@@ -27,7 +27,9 @@
         "symfony/runtime": "^6.3"
     },
     "require-dev": {
+        "mockery/mockery": "^1.6",
         "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^10.2",
         "swoole/ide-helper": "~5.0.0"
     },
     "config": {
@@ -45,5 +47,8 @@
         "psr-4": {
             "Swoolefony\\SwooleBundle\\Tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "tests": "phpunit"
     }
 }
