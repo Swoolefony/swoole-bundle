@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Swoole\Response;
 
 use Swoole\Http\Response as SwooleResponse;
-use Swoolefony\SwooleBundle\Swoole\Response\HttpSender\FileSender;
-use Swoolefony\SwooleBundle\Swoole\Response\HttpSender\StandardSender;
-use Swoolefony\SwooleBundle\Swoole\Response\HttpSender\StreamedSender;
+use Swoolefony\SwooleBundle\Swoole\Response\Sender\FileSender;
+use Swoolefony\SwooleBundle\Swoole\Response\Sender\StandardSender;
+use Swoolefony\SwooleBundle\Swoole\Response\Sender\StreamedSender;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Swoolefony\SwooleBundle\Swoole\Response\HttpSender;
+namespace Swoolefony\SwooleBundle\Swoole\Response\Sender;
 
 use ReflectionProperty;
 use Swoole\Coroutine\System;

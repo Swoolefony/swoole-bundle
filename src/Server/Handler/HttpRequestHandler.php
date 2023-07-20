@@ -6,9 +6,9 @@ namespace Swoolefony\SwooleBundle\Server\Handler;
 
 use Swoolefony\SwooleBundle\Runtime\Mode;
 use Swoolefony\SwooleBundle\Swoole\Request\Converter;
-use Swoolefony\SwooleBundle\Swoole\Response\HttpSender;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
+use Swoolefony\SwooleBundle\Swoole\Response\HttpSender;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 readonly class HttpRequestHandler

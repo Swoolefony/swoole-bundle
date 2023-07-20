@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Swoolefony\SwooleBundle\Swoole\Response\HttpSender;
+namespace Swoolefony\SwooleBundle\Swoole\Response\Sender;
 
 use Swoole\Http\Response as SwooleResponse;
 use Swoolefony\SwooleBundle\Swoole\Response\SenderInterface;
