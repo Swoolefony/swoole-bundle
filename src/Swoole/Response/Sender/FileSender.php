@@ -50,6 +50,6 @@ readonly class FileSender implements SenderInterface
             property: 'deleteFileAfterSend',
         );
 
-        return $shouldDeleteProp->getValue() === true;
+        return $shouldDeleteProp->getValue($binaryFileResponse) === true;
     }
 }
