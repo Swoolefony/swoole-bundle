@@ -13,7 +13,10 @@ readonly class StreamedSender implements SenderInterface
 {
     use SendHeadersTrait;
 
-    private const CHUNK_SIZE = 1024 * 1024;
+    /**
+     * Per the docs, a default of 1 turns into 4096. Just defining that explicitly rather than using our own value.
+     */
+    private const CHUNK_SIZE = 4096;
 
     public function __construct(private SwooleResponse $swooleResponse)
     {
@@ -36,9 +39,9 @@ readonly class StreamedSender implements SenderInterface
 
     private function sendOutput(string $output): string
     {
-        return $this->swooleResponse->write($output)
-            ? ''
-            : $output;
+        $this->swooleResponse->write($output);
+
+        return '';
     }
 
     private function streamContent(StreamedResponse $symfonyResponse): void
