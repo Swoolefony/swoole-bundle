@@ -7,4 +7,6 @@ namespace Swoolefony\SwooleBundle\Server;
 interface ServerInterface
 {
     public function run(): void;
+
+    public function stop(): void;
 }

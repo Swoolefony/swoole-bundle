@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Server;
 
-use Swoole\Http\Server as SwooleHttpServer;
-use Swoole\WebSocket\Server as SwooleWebsocketServer;
 use Swoolefony\SwooleBundle\Runtime\Mode;
 use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
 use Swoolefony\SwooleBundle\Server\Type\HttpServer as HttpServer;
@@ -23,9 +21,7 @@ class Factory
                 $options,
                 $app,
             ),
-            Mode::Websocket => $this->makeWebsocketServer(
-                $options,
-            ),
+            Mode::Websocket => new WebsocketServer($options),
         };
     }
 
@@ -41,34 +37,9 @@ class Factory
             ));
         }
 
-        $server = new SwooleHttpServer(
-            $options->getIpAddress(),
-            $options->getPort(),
+        return new HttpServer(
+            options: $options,
+            requestHandler: new HttpRequestHandler($app),
         );
-
-        $server->set([
-            'hook_flags' => SWOOLE_HOOK_ALL,
-        ]);
-
-        $server->on(
-            'request',
-            new HttpRequestHandler($app)
-        );
-
-        return new HttpServer($server);
-    }
-
-    private function makeWebsocketServer(Options $options): WebsocketServer
-    {
-        $server = new SwooleWebsocketServer(
-            $options->getIpAddress(),
-            $options->getPort(),
-        );
-
-        $server->set([
-            'hook_flags' => SWOOLE_HOOK_ALL,
-        ]);
-
-        return new WebsocketServer($server);
     }
 }

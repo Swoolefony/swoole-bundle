@@ -5,24 +5,59 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Server\Type;
 
 use Swoole\Http\Server as SwooleServer;
+use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
+use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\Stats;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 
-readonly class HttpServer implements ServerInterface
+class HttpServer implements ServerInterface
 {
-    public function __construct(private SwooleServer $swooleServer)
-    {
+    private ?SwooleServer $swooleServer = null;
+
+    public function __construct(
+        private readonly Options $options,
+        private readonly HttpRequestHandler $requestHandler,
+    ) {
     }
 
     public function run(): void
     {
-        if (!$this->swooleServer->start()) {
+        if (!$this->server()->start()) {
             throw new \RuntimeException('Unable to start HTTP server.');
+        }
+    }
+
+    public function stop(): void
+    {
+        if ($this->swooleServer) {
+            $this->server()->shutdown();
         }
     }
 
     public function getStats(): Stats
     {
-        return new Stats((array) $this->swooleServer->stats());
+        return new Stats((array) $this->server()->stats());
+    }
+
+    private function server(): SwooleServer
+    {
+        if ($this->swooleServer !== null) {
+            return $this->swooleServer;
+        }
+        $this->swooleServer = new SwooleServer(
+            $this->options->getIpAddress(),
+            $this->options->getPort(),
+        );
+
+        $this->swooleServer->set([
+            'hook_flags' => SWOOLE_HOOK_ALL,
+        ]);
+
+        $this->swooleServer->on(
+            'request',
+            $this->requestHandler,
+        );
+
+        return $this->swooleServer;
     }
 }
