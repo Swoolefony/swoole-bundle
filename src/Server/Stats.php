@@ -73,12 +73,12 @@ readonly class Stats
 
     public function getTotalBytesSent(): int
     {
-        return $this->getIntOrDefaultFromKey('total_recv_bytes');
+        return $this->getIntOrDefaultFromKey('total_send_bytes');
     }
 
     public function getTotalBytesReceived(): int
     {
-        return $this->getIntOrDefaultFromKey('total_send_bytes');
+        return $this->getIntOrDefaultFromKey('total_recv_bytes');
     }
 
     /**
