@@ -13,7 +13,7 @@ trait SendHeadersTrait
         SymfonyResponse $symfonyResponse,
         SwooleResponse $swooleResponse,
     ): void {
-        foreach ($symfonyResponse->headers->all() as $header => $values) {
+        foreach ($symfonyResponse->headers->allPreserveCaseWithoutCookies() as $header => $values) {
             $swooleResponse->header(
                 $header,
                 $values,
