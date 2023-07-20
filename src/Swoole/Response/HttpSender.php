@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-readonly class HttpSender
+class HttpSender
 {
     public function send(
         SwooleResponse $swooleResponse,
