@@ -19,5 +19,11 @@ trait SendHeadersTrait
                 $values,
             );
         }
+        foreach ($symfonyResponse->headers->getCookies() as $cookie) {
+            $swooleResponse->header(
+                'Set-Cookie',
+                $cookie,
+            );
+        }
     }
 }
