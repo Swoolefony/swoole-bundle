@@ -20,6 +20,11 @@ readonly class ServerRunner implements RunnerInterface
     ) {
     }
 
+    public function getOptions(): Options
+    {
+        return $this->serverOptions;
+    }
+
     public function run(): int
     {
         $server = $this->serverFactory->makeFromOptions(

@@ -29,6 +29,7 @@
     "require-dev": {
         "mockery/mockery": "^1.6",
         "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-phpunit": "^1.3",
         "phpunit/phpunit": "^10.2",
         "swoole/ide-helper": "~5.0.0"
     },
