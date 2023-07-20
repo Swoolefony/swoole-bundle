@@ -23,7 +23,9 @@ class StandardSenderTest extends TestCase
     {
         parent::setUp();
 
-        $this->mockResponse = Mockery::mock(SwooleResponse::class);
+        /** @var SwooleResponse&MockInterface $mockResponse */
+        $mockResponse = Mockery::mock(SwooleResponse::class);
+        $this->mockResponse = $mockResponse;
         $this->subject = new StandardSender($this->mockResponse);
     }
 

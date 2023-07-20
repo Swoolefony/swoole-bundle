@@ -27,7 +27,10 @@ class FileSenderTest extends TestCase
         parent::setUp();
 
         touch(self::TEMP_FILE);
-        $this->mockResponse = Mockery::mock(Response::class);
+
+        /** @var Response&MockInterface $mockResponse */
+        $mockResponse = Mockery::mock(Response::class);
+        $this->mockResponse = $mockResponse;
         $this->subject = new FileSender($this->mockResponse);
     }
 
@@ -48,11 +51,13 @@ class FileSenderTest extends TestCase
             'sendFile' => true,
         ]);
 
-        $this->subject->send($response);
-
-        $this->mockResponse->shouldHaveReceived('sendfile')
+        $this->mockResponse->shouldReceive('sendfile')
             ->with(Mockery::on(
                 fn(string $path) => str_ends_with($path, self::TEMP_FILE)
             ));
+
+        $this->subject->send($response);
+
+        $this->mockResponse->shouldHaveReceived('sendfile');
     }
 }
