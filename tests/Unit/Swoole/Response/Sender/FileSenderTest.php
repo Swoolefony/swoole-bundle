@@ -51,6 +51,8 @@ class FileSenderTest extends TestCase
         $this->subject->send($response);
 
         $this->mockResponse->shouldHaveReceived('sendfile')
-            ->with('/private/tmp/foo.txt');
+            ->with(Mockery::on(
+                fn(string $path) => str_ends_with($path, self::TEMP_FILE)
+            ));
     }
 }
