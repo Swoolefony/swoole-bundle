@@ -46,9 +46,7 @@ class WebsocketServer implements ServerInterface
             $this->options->getPort(),
         );
 
-        $this->server->set([
-            'hook_flags' => SWOOLE_HOOK_ALL,
-        ]);
+        $this->server->set($this->options->toSwooleOptionsArray());
 
         return $this->server;
     }

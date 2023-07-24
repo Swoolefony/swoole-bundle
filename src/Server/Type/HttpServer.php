@@ -49,9 +49,7 @@ class HttpServer implements ServerInterface
             $this->options->getPort(),
         );
 
-        $this->swooleServer->set([
-            'hook_flags' => SWOOLE_HOOK_ALL,
-        ]);
+        $this->swooleServer->set($this->options->toSwooleOptionsArray());
 
         $this->swooleServer->on(
             'request',
