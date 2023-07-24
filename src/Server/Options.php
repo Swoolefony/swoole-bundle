@@ -20,6 +20,7 @@ class Options
             SslProtocol::TLS_1_3,
             SslProtocol::TLS_1_2,
         ],
+        private bool $shouldDaemonize = false,
     ) {
     }
 
@@ -35,6 +36,7 @@ class Options
         $sslKeyFile = $options['swoolefony_ssl_key_file'] ?? getenv('SWOOLEFONY_SSL_KEY_FILE');
         $isSslSelfSignedAllowed = $options['swoolefony_ssl_allow_selfsigned'] ?? getenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED');
         $sslProtocols = $options['swoolefony_ssl_protocols'] ?? getenv('SWOOLEFONY_SSL_PROTOCOLS');
+        $shouldDaemonize = $options['swoolefony_daemonize'] ?? getenv('SWOOLEFONY_DAEMONIZE');
 
         $optionsObj = new self();
         if (is_string($ip) && $ip !== '') {
@@ -53,6 +55,7 @@ class Options
             $optionsObj->setSslCertFile($sslCertFile);
         }
         $optionsObj->setIsSslSelfSignedAllowed((bool) $isSslSelfSignedAllowed);
+        $optionsObj->setDaemonize((bool) $shouldDaemonize);
 
         if (is_string($sslProtocols)) {
             $optionsObj->setSslProtocols(...array_map(
@@ -151,6 +154,18 @@ class Options
         return $this;
     }
 
+    public function setDaemonize(bool $shouldDaemonize): self
+    {
+        $this->shouldDaemonize = $shouldDaemonize;
+
+        return $this;
+    }
+
+    public function shouldDaemonize(): bool
+    {
+        return $this->shouldDaemonize;
+    }
+
     /**
      *
      * @return array<string, scalar>
@@ -179,6 +194,8 @@ class Options
             $sslProtocols |= $sslProtocol->toSwooleInt();
         }
         $options['ssl_protocols'] = $sslProtocols;
+
+        $options['daemonize'] = $this->shouldDaemonize;
 
         return $options;
     }

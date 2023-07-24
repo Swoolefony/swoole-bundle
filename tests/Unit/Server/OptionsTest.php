@@ -113,6 +113,7 @@ class OptionsTest extends TestCase
                 'ssl_cert_file' => '/foo.crt',
                 'ssl_allow_self_signed' => true,
                 'ssl_protocols' => SWOOLE_SSL_TLSv1_3 | SWOOLE_SSL_TLSv1_2,
+                'daemonize' => false,
             ],
             $options->toSwooleOptionsArray()
         );
@@ -126,6 +127,7 @@ class OptionsTest extends TestCase
         putenv('SWOOLEFONY_SSL_KEY_FILE=/foo.key');
         putenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED=1');
         putenv('SWOOLEFONY_SSL_PROTOCOLS=tls1.3');
+        putenv('SWOOLEFONY_DAEMONIZE=1');
 
         $options = Options::makeFromArrayOrEnv();
 
@@ -150,6 +152,7 @@ class OptionsTest extends TestCase
             [SslProtocol::TLS_1_3],
             $options->getSslProtocols()
         );
+        $this->assertTrue($options->shouldDaemonize());
     }
 
     private static function resetEnv(): void
@@ -160,5 +163,6 @@ class OptionsTest extends TestCase
         putenv('SWOOLEFONY_SSL_KEY_FILE=');
         putenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED=');
         putenv('SWOOLEFONY_SSL_PROTOCOLS=');
+        putenv('SWOOLEFONY_DAEMONIZE=');
     }
 }
