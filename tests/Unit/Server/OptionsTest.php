@@ -7,6 +7,7 @@ namespace Swoolefony\SwooleBundle\Tests\Unit\Server;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Swoolefony\SwooleBundle\Runtime\Mode;
 use Swoolefony\SwooleBundle\Server\Options;
+use Swoolefony\SwooleBundle\Server\SslProtocol;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
 
 #[CoversClass(Options::class)]
@@ -87,6 +88,16 @@ class OptionsTest extends TestCase
         );
     }
 
+    public function testItGetsTheDefaultSslProtocols(): void
+    {
+        $options = new Options();
+
+        $this->assertSame(
+            [SslProtocol::TLS_1_3, SslProtocol::TLS_1_2],
+            $options->getSslProtocols(),
+        );
+    }
+
     public function testItMakesTheSwooleOptionsArray(): void
     {
         $options = new Options(
@@ -101,6 +112,7 @@ class OptionsTest extends TestCase
                 'ssl_key_file' => '/foo.key',
                 'ssl_cert_file' => '/foo.crt',
                 'ssl_allow_self_signed' => true,
+                'ssl_protocols' => SWOOLE_SSL_TLSv1_3 | SWOOLE_SSL_TLSv1_2,
             ],
             $options->toSwooleOptionsArray()
         );
@@ -113,6 +125,7 @@ class OptionsTest extends TestCase
         putenv('SWOOLEFONY_SSL_CERT_FILE=/foo.crt');
         putenv('SWOOLEFONY_SSL_KEY_FILE=/foo.key');
         putenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED=1');
+        putenv('SWOOLEFONY_SSL_PROTOCOLS=tls1.3');
 
         $options = Options::makeFromArrayOrEnv();
 
@@ -133,6 +146,10 @@ class OptionsTest extends TestCase
             $options->getSslCertFile()
         );
         $this->assertTrue($options->isSslSelfSignedAllowed());
+        $this->assertSame(
+            [SslProtocol::TLS_1_3],
+            $options->getSslProtocols()
+        );
     }
 
     private static function resetEnv(): void
@@ -142,5 +159,6 @@ class OptionsTest extends TestCase
         putenv('SWOOLEFONY_SSL_CERT_FILE=');
         putenv('SWOOLEFONY_SSL_KEY_FILE=');
         putenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED=');
+        putenv('SWOOLEFONY_SSL_PROTOCOLS=');
     }
 }

@@ -15,6 +15,11 @@ class Options
         private ?string $sslCertFile = null,
         private ?string $sslKeyFile = null,
         private bool $allowSslSelfSigned = false,
+        /** @var SslProtocol[] $sslProtocols */
+        private array $sslProtocols = [
+            SslProtocol::TLS_1_3,
+            SslProtocol::TLS_1_2,
+        ],
     ) {
     }
 
@@ -29,6 +34,7 @@ class Options
         $sslCertFile = $options['swoolefony_ssl_cert_file'] ?? getenv('SWOOLEFONY_SSL_CERT_FILE');
         $sslKeyFile = $options['swoolefony_ssl_key_file'] ?? getenv('SWOOLEFONY_SSL_KEY_FILE');
         $isSslSelfSignedAllowed = $options['swoolefony_ssl_allow_selfsigned'] ?? getenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED');
+        $sslProtocols = $options['swoolefony_ssl_protocols'] ?? getenv('SWOOLEFONY_SSL_PROTOCOLS');
 
         $optionsObj = new self();
         if (is_string($ip) && $ip !== '') {
@@ -47,6 +53,13 @@ class Options
             $optionsObj->setSslCertFile($sslCertFile);
         }
         $optionsObj->setIsSslSelfSignedAllowed((bool) $isSslSelfSignedAllowed);
+
+        if (is_string($sslProtocols)) {
+            $optionsObj->setSslProtocols(...array_map(
+                fn(string $value) => SslProtocol::from(trim($value)),
+                explode(',', $sslProtocols)
+            ));
+        }
 
         return $optionsObj;
     }
@@ -124,6 +137,22 @@ class Options
     }
 
     /**
+     * @return SslProtocol[]
+     */
+    public function getSslProtocols(): array
+    {
+        return $this->sslProtocols;
+    }
+
+    public function setSslProtocols(SslProtocol ...$sslProtocols): self
+    {
+        $this->sslProtocols = $sslProtocols;
+
+        return $this;
+    }
+
+    /**
+     *
      * @return array<string, scalar>
      */
     public function toSwooleOptionsArray(): array
@@ -144,6 +173,12 @@ class Options
         if($sslKeyFile || $sslCertFile) {
             $options['ssl_allow_self_signed'] = $this->isSslSelfSignedAllowed();
         }
+
+        $sslProtocols = 0;
+        foreach ($this->sslProtocols as $sslProtocol) {
+            $sslProtocols |= $sslProtocol->toSwooleInt();
+        }
+        $options['ssl_protocols'] = $sslProtocols;
 
         return $options;
     }

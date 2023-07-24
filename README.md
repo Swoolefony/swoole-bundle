@@ -29,14 +29,15 @@ the Swoole server is started based on the provided configuration.
 
 The Swoole server mode, IP, and port can be controlled via environment variables:
 
-| Enviornment Variable              | Description                                                    | Default Value |
-|-----------------------------------|----------------------------------------------------------------|---------------|
-| `SWOOLEFONY_MODE`                 | The server mode to run Swoole in (e.g. `http`, `websocket`)    | `http`        |
-| `SWOOLEFONY_IP`                   | The IP address to bind the Swoole server to.                   | `0.0.0.0`     |
-| `SWOOLEFONY_PORT`                 | The port to for the Swoole server to listen on.                | `80`          |
-| `SWOOLEFONY_SSL_CERT_FILE`        | The path to the SSL cert file to use.                          | Not set.      |
-| `SWOOLEFONY_SSL_KEY_FILE`         | The path to the SSL key file to use.                           | Not set.      |
-| `SWOOLEFONY_SSL_ALLOW_SELFSIGNED` | Whether or not to allow self-signed certificates (`0` or `1`). | `0`           |
+| Enviornment Variable              | Description                                                                              | Default Value   |
+|-----------------------------------|------------------------------------------------------------------------------------------|-----------------|
+| `SWOOLEFONY_MODE`                 | The server mode to run Swoole in (e.g. `http`, `websocket`)                              | `http`          |
+| `SWOOLEFONY_IP`                   | The IP address to bind the Swoole server to.                                             | `0.0.0.0`       |
+| `SWOOLEFONY_PORT`                 | The port to for the Swoole server to listen on.                                          | `80`            |
+| `SWOOLEFONY_SSL_CERT_FILE`        | The path to the SSL cert file to use.                                                    | Not set.        |
+| `SWOOLEFONY_SSL_KEY_FILE`         | The path to the SSL key file to use.                                                     | Not set.        |
+| `SWOOLEFONY_SSL_ALLOW_SELFSIGNED` | Whether or not to allow self-signed certificates (`0` or `1`).                           | `0`             |
+| `SWOOLEFONY_SSL_PROTOCOLS`        | The SSL / TLS protcols to allow in a comma separated list: `tls1.1`, `tls1.2`, `tls1.3`  | `tls1.3,tls1.2` |
 
 The runtime class will look for those environment variables and use them if they exist. Otherwise it will fallback to the default
 values that are listed.
