@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Server;
 
+use RuntimeException;
 use Swoolefony\SwooleBundle\Runtime\Mode;
 use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
 use Swoolefony\SwooleBundle\Server\Type\HttpServer as HttpServer;
@@ -30,7 +31,7 @@ class Factory
         object $app,
     ): HttpServer {
         if (!$app instanceof HttpKernelInterface) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Class of "%s" not supported for mode HTTP. Must be an instance of %s.',
                 get_class($app),
                 HttpKernelInterface::class,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Server\Type;
 
+use RuntimeException;
 use Swoole\Http\Server as SwooleServer;
 use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
 use Swoolefony\SwooleBundle\Server\Options;
@@ -23,7 +24,7 @@ class HttpServer implements ServerInterface
     public function run(): void
     {
         if (!$this->server()->start()) {
-            throw new \RuntimeException('Unable to start HTTP server.');
+            throw new RuntimeException('Unable to start HTTP server.');
         }
     }
 

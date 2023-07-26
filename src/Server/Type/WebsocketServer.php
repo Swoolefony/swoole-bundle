@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Server\Type;
 
+use RuntimeException;
 use Swoole\WebSocket\Server as SwooleServer;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\Stats;
@@ -27,7 +28,7 @@ class WebsocketServer implements ServerInterface
     public function run(): void
     {
         if (!$this->server()->start()) {
-            throw new \RuntimeException('Unable to start websocket server.');
+            throw new RuntimeException('Unable to start websocket server.');
         }
     }
 
