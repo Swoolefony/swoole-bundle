@@ -9,10 +9,16 @@ use Swoolefony\SwooleBundle\Runtime\Mode;
 use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
 use Swoolefony\SwooleBundle\Server\Type\HttpServer as HttpServer;
 use Swoolefony\SwooleBundle\Server\Type\WebsocketServer;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class Factory
 {
+    public function __construct(private readonly CacheInterface $cache = new NullAdapter())
+    {
+    }
+
     public function makeFromOptions(
         Options $options,
         object $app,
@@ -41,6 +47,7 @@ class Factory
         return new HttpServer(
             options: $options,
             requestHandler: new HttpRequestHandler($app),
+            cache: $this->cache,
         );
     }
 }

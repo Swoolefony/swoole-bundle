@@ -6,10 +6,12 @@ namespace Swoolefony\SwooleBundle\Server\Type;
 
 use RuntimeException;
 use Swoole\Http\Server as SwooleServer;
+use Swoolefony\SwooleBundle\Server\CacheKey;
 use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\Stats;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 class HttpServer implements ServerInterface
 {
@@ -18,6 +20,7 @@ class HttpServer implements ServerInterface
     public function __construct(
         private readonly Options $options,
         private readonly HttpRequestHandler $requestHandler,
+        private readonly CacheInterface $cache,
     ) {
     }
 
@@ -56,7 +59,21 @@ class HttpServer implements ServerInterface
             'request',
             $this->requestHandler,
         );
+        $this->swooleServer->on(
+            'start',
+            $this->resetServerCachePid(...)
+        );
 
         return $this->swooleServer;
+    }
+
+    private function resetServerCachePid(): void
+    {
+        $this->cache->delete(CacheKey::ServerPid->value);
+
+        $this->cache->get(
+            CacheKey::ServerPid->value,
+            fn () => $this->server()->getMasterPid(),
+        );
     }
 }

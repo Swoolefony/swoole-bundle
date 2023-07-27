@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Tests\Unit\Runtime;
 
+use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Swoolefony\SwooleBundle\Runtime\Mode;
 use Swoolefony\SwooleBundle\Runtime\ServerRunner;
 use Swoolefony\SwooleBundle\Runtime\SwooleRuntime;
+use Swoolefony\SwooleBundle\Server\Factory;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 #[CoversClass(SwooleRuntime::class)]
 class SwooleRuntimeTest extends TestCase
@@ -19,8 +21,12 @@ class SwooleRuntimeTest extends TestCase
     {
         $subject = new SwooleRuntime();
 
-        /** @var HttpKernelInterface&MockInterface $mockKernel */
-        $mockKernel = \Mockery::mock(HttpKernelInterface::class);
+        /** @var Kernel&MockInterface $mockKernel */
+        $mockKernel = Mockery::mock(Kernel::class);
+        $mockKernel->allows('boot');
+        $mockKernel->shouldReceive('getContainer->get')
+            ->with(Factory::class)
+            ->andReturn(Mockery::mock(Factory::class));
 
         $result = $subject->getRunner($mockKernel);
 
