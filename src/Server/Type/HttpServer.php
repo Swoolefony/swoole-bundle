@@ -6,21 +6,26 @@ namespace Swoolefony\SwooleBundle\Server\Type;
 
 use RuntimeException;
 use Swoole\Http\Server as SwooleServer;
-use Swoolefony\SwooleBundle\Server\CacheKey;
-use Swoolefony\SwooleBundle\Server\Handler\HttpRequestHandler;
+use Swoolefony\SwooleBundle\Server\EventName;
+use Swoolefony\SwooleBundle\Server\HandlerFactory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\Stats;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 
 class HttpServer implements ServerInterface
 {
+    private const HANDLED_EVENTS = [
+        EventName::Request,
+        EventName::Start,
+        EventName::Shutdown,
+    ];
+
     private ?SwooleServer $swooleServer = null;
 
     public function __construct(
         private readonly Options $options,
-        private readonly HttpRequestHandler $requestHandler,
-        private readonly CacheInterface $cache,
+        private readonly HandlerFactory $handlerFactory,
+        private readonly object $app,
     ) {
     }
 
@@ -55,25 +60,19 @@ class HttpServer implements ServerInterface
 
         $this->swooleServer->set($this->options->toSwooleOptionsArray());
 
-        $this->swooleServer->on(
-            'request',
-            $this->requestHandler,
-        );
-        $this->swooleServer->on(
-            'start',
-            $this->resetServerCachePid(...)
-        );
+        foreach (self::HANDLED_EVENTS as $eventName) {
+            $handler = $this->handlerFactory->makeForEvent(
+                $eventName,
+                $this->app,
+            );
+            if ($handler !== null) {
+                $this->swooleServer->on(
+                    $eventName->value,
+                    $handler,
+                );
+            }
+        }
 
         return $this->swooleServer;
-    }
-
-    private function resetServerCachePid(): void
-    {
-        $this->cache->delete(CacheKey::ServerPid->value);
-
-        $this->cache->get(
-            CacheKey::ServerPid->value,
-            fn () => $this->server()->getMasterPid(),
-        );
     }
 }

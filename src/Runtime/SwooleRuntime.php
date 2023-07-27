@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Runtime;
 
 use Co;
-use Swoolefony\SwooleBundle\Server\Factory;
+use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Runtime\RunnerInterface;
@@ -33,8 +33,8 @@ class SwooleRuntime extends SymfonyRuntime
         if ($application instanceof Kernel) {
             $application->boot();
 
-            /** @var Factory $factory */
-            $factory = $application->getContainer()->get(Factory::class);
+            /** @var ServerFactory $factory */
+            $factory = $application->getContainer()->get(ServerFactory::class);
 
             return new ServerRunner(
                 $this->swooleOptions,

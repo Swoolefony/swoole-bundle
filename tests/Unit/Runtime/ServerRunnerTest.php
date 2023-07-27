@@ -9,7 +9,7 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Swoolefony\SwooleBundle\Kernel\SwooleKernel;
 use Swoolefony\SwooleBundle\Runtime\ServerRunner;
-use Swoolefony\SwooleBundle\Server\Factory;
+use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
@@ -25,7 +25,7 @@ class ServerRunnerTest extends TestCase
 
     private HttpKernelInterface&MockInterface $mockKernel;
 
-    private Factory&MockInterface $mockFactory;
+    private ServerFactory&MockInterface $mockFactory;
 
     public function setUp(): void
     {
@@ -35,8 +35,8 @@ class ServerRunnerTest extends TestCase
         $mockKernel = Mockery::mock(Kernel::class);
         $mockKernel->allows('getContainer->set');
 
-        /** @var Factory&MockInterface $mockFactory */
-        $mockFactory = Mockery::mock(Factory::class);
+        /** @var ServerFactory&MockInterface $mockFactory */
+        $mockFactory = Mockery::mock(ServerFactory::class);
 
         $this->mockKernel = $mockKernel;
         $this->mockFactory = $mockFactory;

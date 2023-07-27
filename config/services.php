@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Swoolefony\SwooleBundle\Server\Factory;
+use Swoolefony\SwooleBundle\Server\HandlerFactory;
+use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -18,10 +19,15 @@ return function(ContainerConfigurator $container): void {
     $services
         ->set(ServerInterface::class)
             ->synthetic()
-        ->set(Factory::class)
+        ->set(HandlerFactory::class)
             ->arg(
                 '$cache',
                 service(CacheInterface::class)
+            )
+        ->set(ServerFactory::class)
+            ->arg(
+                '$handlerFactory',
+                service(HandlerFactory::class)
             )
             ->public()
     ;

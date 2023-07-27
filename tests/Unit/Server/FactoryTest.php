@@ -8,26 +8,26 @@ use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Swoolefony\SwooleBundle\Runtime\Mode;
-use Swoolefony\SwooleBundle\Server\Factory;
+use Swoolefony\SwooleBundle\Server\HandlerFactory;
+use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\Type\HttpServer;
 use Swoolefony\SwooleBundle\Server\Type\WebsocketServer;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 
-#[CoversClass(Factory::class)]
+#[CoversClass(ServerFactory::class)]
 class FactoryTest extends TestCase
 {
-    private Factory $subject;
+    private ServerFactory $subject;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        /** @var CacheInterface&MockInterface $mockCache */
-        $mockCache = Mockery::mock(CacheInterface::class);
-        $this->subject = new Factory($mockCache);
+        /** @var HandlerFactory&MockInterface $mockCache */
+        $mockCache = Mockery::mock(HandlerFactory::class);
+        $this->subject = new ServerFactory($mockCache);
     }
 
     public function testItMakesTheHttpServer(): void

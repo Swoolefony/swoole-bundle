@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Runtime;
 
 use Swoolefony\SwooleBundle\Kernel\SwooleKernelInterface;
-use Swoolefony\SwooleBundle\Server\Factory;
+use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 use Symfony\Component\HttpKernel\Kernel;
@@ -16,7 +16,7 @@ readonly class ServerRunner implements RunnerInterface
     public function __construct(
         private Options $serverOptions,
         private Kernel $kernel,
-        private Factory $serverFactory = new Factory(),
+        private ServerFactory $serverFactory,
     ) {
     }
 
