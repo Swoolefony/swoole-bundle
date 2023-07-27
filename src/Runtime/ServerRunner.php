@@ -8,14 +8,14 @@ use Swoolefony\SwooleBundle\Kernel\SwooleKernelInterface;
 use Swoolefony\SwooleBundle\Server\Factory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Runtime\RunnerInterface;
 
 readonly class ServerRunner implements RunnerInterface
 {
     public function __construct(
         private Options $serverOptions,
-        private HttpKernelInterface $kernel,
+        private Kernel $kernel,
         private Factory $serverFactory = new Factory(),
     ) {
     }
@@ -32,6 +32,13 @@ readonly class ServerRunner implements RunnerInterface
             $this->kernel,
         );
 
+        $this->kernel
+            ->getContainer()
+            ->set(
+                id: ServerInterface::class,
+                service: $server,
+            );
+
         $this->injectSwooleInKernelIfSupported(
             $this->kernel,
             $server,
@@ -43,7 +50,7 @@ readonly class ServerRunner implements RunnerInterface
     }
 
     private function injectSwooleInKernelIfSupported(
-        HttpKernelInterface $kernel,
+        Kernel $kernel,
         ServerInterface $server,
     ): void {
         if ($kernel instanceof SwooleKernelInterface) {

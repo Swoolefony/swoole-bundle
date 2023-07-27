@@ -16,8 +16,7 @@ return function(ContainerConfigurator $container): void {
     ;
 
     $services
-        ->set('swoolefony.server')
-            ->class(ServerInterface::class)
+        ->set(ServerInterface::class)
             ->synthetic()
         ->set(Factory::class)
             ->arg(

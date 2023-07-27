@@ -14,6 +14,7 @@ use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 #[CoversClass(ServerRunner::class)]
 class ServerRunnerTest extends TestCase
@@ -30,8 +31,10 @@ class ServerRunnerTest extends TestCase
     {
         parent::setUp();
 
-        /** @var HttpKernelInterface&MockInterface $mockKernel */
-        $mockKernel = Mockery::mock(HttpKernelInterface::class);
+        /** @var Kernel&MockInterface $mockKernel */
+        $mockKernel = Mockery::mock(Kernel::class);
+        $mockKernel->allows('getContainer->set');
+
         /** @var Factory&MockInterface $mockFactory */
         $mockFactory = Mockery::mock(Factory::class);
 
@@ -80,8 +83,9 @@ class ServerRunnerTest extends TestCase
             ->shouldReceive('run')
             ->andReturnUndefined();
 
-        /** @var HttpKernelInterface&MockInterface $swooleKernel */
+        /** @var SwooleKernel&MockInterface $swooleKernel */
         $swooleKernel = Mockery::mock(SwooleKernel::class);
+        $swooleKernel->allows('getContainer->set');
 
         $swooleKernel
             ->shouldReceive('useSwooleServer')
