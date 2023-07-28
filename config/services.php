@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Swoolefony\SwooleBundle\Command\ServerStopCommand;
 use Swoolefony\SwooleBundle\Server\HandlerFactory;
 use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
@@ -30,5 +31,7 @@ return function(ContainerConfigurator $container): void {
                 service(HandlerFactory::class)
             )
             ->public()
+        ->set(ServerStopCommand::class)
+            ->tag('console.command')
     ;
 };
