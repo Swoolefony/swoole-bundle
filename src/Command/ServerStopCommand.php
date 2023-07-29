@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Command;
 
+use DateTime;
 use Swoole\Process;
 use Swoolefony\SwooleBundle\Server\CacheKey;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 final class ServerStopCommand extends Command
 {
@@ -41,7 +43,12 @@ final class ServerStopCommand extends Command
         /** @var int|null $serverPid */
         $serverPid = $this->cache->get(
             CacheKey::ServerPid->value,
-            fn () => null,
+            function (ItemInterface $item) {
+                // We want to immediately expire this, as we don't want to / can't compute the value in this case.
+                $item->expiresAt(new DateTime());
+
+                return null;
+            },
         );
         $signal = $input->getOption('force')
             ? self::SIGKILL
