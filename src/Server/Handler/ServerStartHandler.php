@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Server\Handler;
 
 use Swoole\Server;
+use Swoole\Timer;
 use Swoolefony\SwooleBundle\Server\CacheKey;
+use Swoolefony\SwooleBundle\Server\Task;
+use Swoolefony\SwooleBundle\Server\Task\TaskType;
 use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class ServerStartHandler
@@ -21,6 +24,11 @@ readonly class ServerStartHandler
         $this->cache->get(
             CacheKey::ServerPid->value,
             fn () => $server->getMasterPid(),
+        );
+
+        Timer::tick(
+            1000,
+            fn() => $server->task(new Task(TaskType::Tick))
         );
     }
 }

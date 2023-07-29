@@ -18,6 +18,7 @@ class HttpServer implements ServerInterface
         EventName::Request,
         EventName::Start,
         EventName::Shutdown,
+        EventName::Task,
     ];
 
     private ?SwooleServer $swooleServer = null;

@@ -8,19 +8,29 @@ use Swoolefony\SwooleBundle\Runtime\Mode;
 
 class Options
 {
+    private Mode $mode = Mode::Http;
+
+    private ?string $sslCertFile = null;
+
+    private ?string $sslKeyFile = null;
+
+    private bool $allowSslSelfSigned = false;
+
+    /**
+     * @var SslProtocol[] $sslProtocols
+     */
+    private array $sslProtocols = [
+        SslProtocol::TLS_1_3,
+        SslProtocol::TLS_1_2,
+    ];
+
+    private bool $shouldDaemonize = false;
+
+    private int $taskWorkersCount = 1;
+
     public function __construct(
         private string $ip = '0.0.0.0',
         private int $port = 80,
-        private Mode $mode = Mode::Http,
-        private ?string $sslCertFile = null,
-        private ?string $sslKeyFile = null,
-        private bool $allowSslSelfSigned = false,
-        /** @var SslProtocol[] $sslProtocols */
-        private array $sslProtocols = [
-            SslProtocol::TLS_1_3,
-            SslProtocol::TLS_1_2,
-        ],
-        private bool $shouldDaemonize = false,
     ) {
     }
 
@@ -37,6 +47,7 @@ class Options
         $isSslSelfSignedAllowed = $options['swoolefony_ssl_allow_selfsigned'] ?? getenv('SWOOLEFONY_SSL_ALLOW_SELFSIGNED');
         $sslProtocols = $options['swoolefony_ssl_protocols'] ?? getenv('SWOOLEFONY_SSL_PROTOCOLS');
         $shouldDaemonize = $options['swoolefony_daemonize'] ?? getenv('SWOOLEFONY_DAEMONIZE');
+        $taskWorkerNum = $options['swoolefony_task_worker_num'] ?? getenv('SWOOLEFONY_TASK_WORKER_NUM');
 
         $optionsObj = new self();
         if (is_string($ip) && $ip !== '') {
@@ -47,6 +58,9 @@ class Options
         }
         if (is_string($mode) && Mode::tryFrom($mode)) {
             $optionsObj->setMode(Mode::from($mode));
+        }
+        if (is_string($taskWorkerNum) || is_int($taskWorkerNum)) {
+            $optionsObj->setTaskWorkersCount((int) $taskWorkerNum);
         }
         if (is_string($sslKeyFile) && $sslKeyFile !== '') {
             $optionsObj->setSslKeyFile($sslKeyFile);
@@ -166,6 +180,18 @@ class Options
         return $this->shouldDaemonize;
     }
 
+    public function setTaskWorkersCount(int $taskWorkersCount): self
+    {
+        $this->taskWorkersCount = $taskWorkersCount;
+
+        return $this;
+    }
+
+    public function getTaskWorkersCount(): int
+    {
+        return $this->taskWorkersCount;
+    }
+
     /**
      *
      * @return array<string, scalar>
@@ -196,6 +222,9 @@ class Options
         $options['ssl_protocols'] = $sslProtocols;
 
         $options['daemonize'] = $this->shouldDaemonize;
+
+        $options['task_worker_num'] = $this->taskWorkersCount;
+        $options['task_enable_coroutine'] = true;
 
         return $options;
     }

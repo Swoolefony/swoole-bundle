@@ -25,9 +25,9 @@ class FactoryTest extends TestCase
     {
         parent::setUp();
 
-        /** @var HandlerFactory&MockInterface $mockCache */
-        $mockCache = Mockery::mock(HandlerFactory::class);
-        $this->subject = new ServerFactory($mockCache);
+        /** @var HandlerFactory&MockInterface $mockHandlerFactory */
+        $mockHandlerFactory = Mockery::mock(HandlerFactory::class);
+        $this->subject = new ServerFactory($mockHandlerFactory);
     }
 
     public function testItMakesTheHttpServer(): void
@@ -52,7 +52,7 @@ class FactoryTest extends TestCase
         $mockKernel = Mockery::mock(HttpKernelInterface::class);
 
         $result = $this->subject->makeFromOptions(
-            new Options(mode: Mode::Websocket),
+            (new Options)->setMode(Mode::Websocket),
             $mockKernel,
         );
 

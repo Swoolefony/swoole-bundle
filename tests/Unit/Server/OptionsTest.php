@@ -50,7 +50,8 @@ class OptionsTest extends TestCase
 
     public function testItSetsAndGetsTheIp(): void
     {
-        $subject = new Options(ip: '127.0.0.1');
+        $subject = (new Options)
+            ->setIpAddress(ip: '127.0.0.1');
 
         $this->assertSame(
             '127.0.0.1',
@@ -60,7 +61,8 @@ class OptionsTest extends TestCase
 
     public function testItSetsAndGetsTheMode(): void
     {
-        $subject = new Options(mode: Mode::Websocket);
+        $subject = (new Options)
+            ->setMode(Mode::Websocket);
 
         $this->assertSame(
             Mode::Websocket,
@@ -70,7 +72,8 @@ class OptionsTest extends TestCase
 
     public function testItSetsAndGetsTheSslCertFile(): void
     {
-        $subject = new Options(sslCertFile: '/foo.crt');
+        $subject = (new Options)
+            ->setSslCertFile('/foo.crt');
 
         $this->assertSame(
             '/foo.crt',
@@ -80,11 +83,23 @@ class OptionsTest extends TestCase
 
     public function testItSetsAndGetsTheSslKeyFile(): void
     {
-        $subject = new Options(sslKeyFile: '/foo.key');
+        $subject = (new Options)
+            ->setSslKeyFile('/foo.key');
 
         $this->assertSame(
             '/foo.key',
             $subject->getSslKeyFile(),
+        );
+    }
+
+    public function testItSetsAndGetsTheTaskWorkerCount(): void
+    {
+        $subject = (new Options)
+            ->setTaskWorkersCount(2);
+
+        $this->assertSame(
+            2,
+            $subject->getTaskWorkersCount(),
         );
     }
 
@@ -100,11 +115,10 @@ class OptionsTest extends TestCase
 
     public function testItMakesTheSwooleOptionsArray(): void
     {
-        $options = new Options(
-            sslCertFile: '/foo.crt',
-            sslKeyFile: '/foo.key',
-            allowSslSelfSigned: true,
-        );
+        $options = (new Options)
+            ->setSslCertFile('/foo.crt')
+            ->setSslKeyFile('/foo.key')
+            ->setIsSslSelfSignedAllowed(true);
 
         $this->assertSame(
             [
@@ -114,6 +128,8 @@ class OptionsTest extends TestCase
                 'ssl_allow_self_signed' => true,
                 'ssl_protocols' => SWOOLE_SSL_TLSv1_3 | SWOOLE_SSL_TLSv1_2,
                 'daemonize' => false,
+                'task_worker_num' => 1,
+                'task_enable_coroutine' => true,
             ],
             $options->toSwooleOptionsArray()
         );

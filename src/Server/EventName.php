@@ -11,4 +11,6 @@ enum EventName: string
     case Start = 'start';
 
     case Shutdown = 'shutdown';
+
+    case Task = 'task';
 }
