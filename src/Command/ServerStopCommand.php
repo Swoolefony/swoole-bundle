@@ -43,7 +43,7 @@ final class ServerStopCommand extends Command
         /** @var int|null $serverPid */
         $serverPid = $this->cache->get(
             CacheKey::ServerPid->value,
-            function (ItemInterface $item) {
+            function (ItemInterface $item): null {
                 // We want to immediately expire this, as we don't want to / can't compute the value in this case.
                 $item->expiresAt(new DateTime());
 
