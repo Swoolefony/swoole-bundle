@@ -55,7 +55,7 @@ final class ServerStopCommand extends Command
             : self::SIGTERM;
 
         if ($serverPid === null)  {
-            $output->writeln('<warning>The server is not running.</warning>');
+            $output->writeln('<error>The server is not running.</error>');
 
             return self::FAILURE;
         }
