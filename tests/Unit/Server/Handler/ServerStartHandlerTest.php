@@ -7,11 +7,12 @@ namespace Swoolefony\SwooleBundle\Tests\Unit\Server\Handler;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Swoole\Server;
 use Swoolefony\SwooleBundle\Server\CacheKey;
 use Swoolefony\SwooleBundle\Server\Handler\ServerStartHandler;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
-use Symfony\Contracts\Cache\CacheInterface;
 
 #[CoversClass(ServerStartHandler::class)]
 class ServerStartHandlerTest extends TestCase
@@ -20,12 +21,18 @@ class ServerStartHandlerTest extends TestCase
     {
         /** @var Server&MockInterface $mockServer */
         $mockServer = Mockery::spy(Server::class);
-        /** @var CacheInterface&MockInterface $mockCache */
-        $mockCache = Mockery::mock(CacheInterface::class);
+        /** @var CacheItemPoolInterface&MockInterface $mockCache */
+        $mockCache = Mockery::mock(CacheItemPoolInterface::class);
+        /** @var CacheItemInterface&MockInterface $mockItem */
+        $mockItem = Mockery::mock(CacheItemInterface::class);
 
         $mockCache->allows([
-           'delete' => true,
-           'get' => null,
+            'deleteItem' => true,
+            'getItem' => $mockItem,
+            'save' => true,
+        ]);
+        $mockItem->allows([
+           'set' => $mockItem,
         ]);
         $mockServer->allows([
             'getMasterPid' => 7,
@@ -35,8 +42,13 @@ class ServerStartHandlerTest extends TestCase
 
         $mockCache
             ->shouldHaveReceived(
-                'delete',
+                'deleteItem',
                 [CacheKey::ServerPid->value]
+            );
+        $mockCache
+            ->shouldHaveReceived(
+                'save',
+                [$mockItem]
             );
     }
 }

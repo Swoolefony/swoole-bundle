@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Server\Handler;
 
+use Psr\Cache\CacheItemPoolInterface;
 use Swoole\Server;
 use Swoole\Timer;
 use Swoolefony\SwooleBundle\Server\CacheKey;
 use Swoolefony\SwooleBundle\Server\Task;
 use Swoolefony\SwooleBundle\Server\Task\TaskType;
-use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class ServerStartHandler
 {
-    public function __construct(private CacheInterface $cache)
+    public function __construct(private CacheItemPoolInterface $cache)
     {
     }
 
     public function __invoke(Server $server): void
     {
-        $this->cache->delete(CacheKey::ServerPid->value);
+        $this->cache->deleteItem(CacheKey::ServerPid->value);
 
-        $this->cache->get(
-            CacheKey::ServerPid->value,
-            fn () => $server->getMasterPid(),
-        );
+        $item = $this->cache->getItem(CacheKey::ServerPid->value);
+        $item->set($server->getMasterPid());
+
+        $this->cache->save($item);
 
         Timer::tick(
             1000,

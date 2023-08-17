@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Psr\Cache\CacheItemPoolInterface;
+use Swoolefony\SwooleBundle\Command\ServerStatusCommand;
 use Swoolefony\SwooleBundle\Command\ServerStopCommand;
 use Swoolefony\SwooleBundle\Server\HandlerFactory;
 use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 use Swoolefony\SwooleBundle\Server\Task\Dispatcher;
-use Symfony\Contracts\Cache\CacheInterface;
+use Swoolefony\SwooleBundle\Server\Task\Handler\ServerStatusUpdateHandler;
 
 return function(ContainerConfigurator $container): void {
     $services = $container->services()
@@ -21,11 +23,22 @@ return function(ContainerConfigurator $container): void {
     $services
         ->set(ServerInterface::class)
             ->synthetic()
+        ->set(ServerStatusUpdateHandler::class)
+            ->arg(
+                '$cache',
+                service(CacheItemPoolInterface::class)
+            )
+            ->arg(
+                '$server',
+                service(ServerInterface::class)
+            )
+            ->tag('swoolefony.server.task_handler')
         ->set(Dispatcher::class)
+            ->args([tagged_iterator('swoolefony.server.task_handler')])
         ->set(HandlerFactory::class)
             ->arg(
                 '$cache',
-                service(CacheInterface::class)
+                service(CacheItemPoolInterface::class)
             )
             ->arg(
                 '$taskDispatcher',
@@ -40,7 +53,13 @@ return function(ContainerConfigurator $container): void {
         ->set(ServerStopCommand::class)
             ->arg(
                 '$cache',
-                service(CacheInterface::class)
+                service(CacheItemPoolInterface::class)
+            )
+            ->tag('console.command')
+        ->set(ServerStatusCommand::class)
+            ->arg(
+                '$cache',
+                service(CacheItemPoolInterface::class)
             )
             ->tag('console.command')
     ;

@@ -7,11 +7,11 @@ namespace Swoolefony\SwooleBundle\Tests\Unit\Server\Handler;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Psr\Cache\CacheItemPoolInterface;
 use Swoole\Server;
 use Swoolefony\SwooleBundle\Server\CacheKey;
 use Swoolefony\SwooleBundle\Server\Handler\ServerShutdownHandler;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
-use Symfony\Contracts\Cache\CacheInterface;
 
 #[CoversClass(ServerShutdownHandler::class)]
 class ServerShutdownHandlerTest extends TestCase
@@ -20,11 +20,11 @@ class ServerShutdownHandlerTest extends TestCase
     {
         /** @var Server&MockInterface $mockServer */
         $mockServer = Mockery::spy(Server::class);
-        /** @var CacheInterface&MockInterface $mockCache */
-        $mockCache = Mockery::mock(CacheInterface::class);
+        /** @var CacheItemPoolInterface&MockInterface $mockCache */
+        $mockCache = Mockery::mock(CacheItemPoolInterface::class);
 
         $mockCache->allows([
-            'delete' => true,
+            'deleteItem' => true,
         ]);
         $mockServer->allows([
             'getMasterPid' => 7,
@@ -34,7 +34,7 @@ class ServerShutdownHandlerTest extends TestCase
 
         $mockCache
             ->shouldHaveReceived(
-                'delete',
+                'deleteItem',
                 [CacheKey::ServerPid->value]
             );
     }

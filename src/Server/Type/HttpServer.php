@@ -44,7 +44,7 @@ class HttpServer implements ServerInterface
         }
     }
 
-    public function getStats(): Stats
+    public function getStatus(): Stats
     {
         return new Stats((array) $this->server()->stats());
     }
