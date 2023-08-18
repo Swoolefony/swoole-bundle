@@ -8,7 +8,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Swoolefony\SwooleBundle\Server\CacheKey;
-use Swoolefony\SwooleBundle\Server\Stats;
+use Swoolefony\SwooleBundle\Server\Status;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +41,7 @@ final class ServerStatusCommand extends Command
 
             return 1;
         }
-        /** @var Stats|null $serverStatus */
+        /** @var Status|null $serverStatus */
         $serverStatus = $serverStatusItem->isHit()
             ? $serverStatusItem->get()
             : null;
@@ -53,11 +53,32 @@ final class ServerStatusCommand extends Command
         $rowValues = [$serverPid];
 
         if ($serverStatus !== null) {
-            $stats = $serverStatus->toArray();
+            $rowHeaders = [
+                ...$rowHeaders,
+                'ip',
+                'port',
+                'main_pid',
+                'worker_pid',
+            ];
+            $rowValues = [
+                ...$rowValues,
+                $serverStatus->getIp(),
+                $serverStatus->getPort(),
+                $serverStatus->getMainPid(),
+                $serverStatus->getManagerPid(),
+            ];
 
-            $rowHeaders = [...$rowHeaders, ...array_keys($stats)];
-            /** @phpstan-ignore-next-line $rowValues */
-            $rowValues = [...$rowValues, ...array_values(self::statusArrayTransform($stats))];
+            $stats = $serverStatus->getStats()->toArray();
+
+            $rowHeaders = [
+                ...$rowHeaders,
+                ...array_keys($stats),
+            ];
+            $rowValues = [
+                ...$rowValues,
+                /** @phpstan-ignore-next-line $rowValues */
+                ...array_values(self::statusArrayTransform($stats)),
+            ];
         }
 
         (new Table($output))

@@ -10,5 +10,5 @@ interface ServerInterface
 
     public function stop(): void;
 
-    public function getStatus(): Stats;
+    public function getStatus(): Status;
 }

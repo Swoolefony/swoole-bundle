@@ -11,6 +11,7 @@ use Swoolefony\SwooleBundle\Server\HandlerFactory;
 use Swoolefony\SwooleBundle\Server\Options;
 use Swoolefony\SwooleBundle\Server\Stats;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
+use Swoolefony\SwooleBundle\Server\Status;
 
 class HttpServer implements ServerInterface
 {
@@ -44,9 +45,17 @@ class HttpServer implements ServerInterface
         }
     }
 
-    public function getStatus(): Stats
+    public function getStatus(): Status
     {
-        return new Stats((array) $this->server()->stats());
+        return new Status(
+            /** @phpstan-ignore-next-line */
+            mainPid: $this->server()->getMasterPid(),
+            /** @phpstan-ignore-next-line */
+            managerPid: $this->server()->getMasterPid(),
+            port: $this->server()->port,
+            ip: $this->server()->host,
+            stats: new Stats((array) $this->server()->stats())
+        );
     }
 
     private function server(): SwooleServer

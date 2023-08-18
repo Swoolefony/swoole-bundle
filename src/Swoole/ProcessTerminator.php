@@ -14,7 +14,7 @@ class ProcessTerminator
 
     public function stop(int $pid): bool
     {
-        return (bool) Process::kill(
+        return (bool) @Process::kill(
             $pid,
             self::SIGTERM,
         );
@@ -22,7 +22,7 @@ class ProcessTerminator
 
     public function forceStop(int $pid): bool
     {
-        return (bool) Process::kill(
+        return (bool) @Process::kill(
             $pid,
             self::SIGKILL,
         );

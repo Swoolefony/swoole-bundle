@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Swoole\Coroutine\System;
 use Swoolefony\SwooleBundle\Server\CacheKey;
 use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
 use Symfony\Component\Console\Command\Command;
