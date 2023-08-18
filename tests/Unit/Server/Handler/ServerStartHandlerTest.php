@@ -38,7 +38,10 @@ class ServerStartHandlerTest extends TestCase
             'getMasterPid' => 7,
         ]);
 
-        (new ServerStartHandler($mockCache))->__invoke($mockServer);
+        (new ServerStartHandler(
+            cache: $mockCache,
+            shouldRegisterTasks: false,
+        ))->__invoke($mockServer);
 
         $mockCache
             ->shouldHaveReceived(

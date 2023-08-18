@@ -13,8 +13,10 @@ use Swoolefony\SwooleBundle\Server\Task\TaskType;
 
 readonly class ServerStartHandler
 {
-    public function __construct(private CacheItemPoolInterface $cache)
-    {
+    public function __construct(
+        private CacheItemPoolInterface $cache,
+        private bool $shouldRegisterTasks = true,
+    ) {
     }
 
     public function __invoke(Server $server): void
@@ -26,9 +28,11 @@ readonly class ServerStartHandler
 
         $this->cache->save($item);
 
-        Timer::tick(
-            1000,
-            fn() => $server->task(new Task(TaskType::Tick))
-        );
+        if ($this->shouldRegisterTasks) {
+            Timer::tick(
+                1000,
+                fn() => $server->task(new Task(TaskType::Tick))
+            );
+        }
     }
 }
