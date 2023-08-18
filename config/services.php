@@ -12,6 +12,7 @@ use Swoolefony\SwooleBundle\Server\ServerFactory;
 use Swoolefony\SwooleBundle\Server\ServerInterface;
 use Swoolefony\SwooleBundle\Server\Task\Dispatcher;
 use Swoolefony\SwooleBundle\Server\Task\Handler\ServerStatusUpdateHandler;
+use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
 
 return function(ContainerConfigurator $container): void {
     $services = $container->services()
@@ -23,6 +24,7 @@ return function(ContainerConfigurator $container): void {
     $services
         ->set(ServerInterface::class)
             ->synthetic()
+        ->set(ProcessTerminator::class)
         ->set(ServerStatusUpdateHandler::class)
             ->arg(
                 '$cache',
@@ -54,6 +56,10 @@ return function(ContainerConfigurator $container): void {
             ->arg(
                 '$cache',
                 service(CacheItemPoolInterface::class)
+            )
+            ->arg(
+                '$processTerminator',
+                service(ProcessTerminator::class)
             )
             ->tag('console.command')
         ->set(ServerStatusCommand::class)
