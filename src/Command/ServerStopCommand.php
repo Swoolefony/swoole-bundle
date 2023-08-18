@@ -4,23 +4,19 @@ declare(strict_types=1);
 
 namespace Swoolefony\SwooleBundle\Command;
 
-use DateTime;
-use Swoole\Process;
+use Psr\Cache\CacheItemPoolInterface;
 use Swoolefony\SwooleBundle\Server\CacheKey;
+use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 
 final class ServerStopCommand extends Command
 {
-    private const SIGTERM = 15;
-
-    private const SIGKILL = 9;
-
-    public function __construct(private readonly CacheInterface $cache)
-    {
+    public function __construct(
+        private readonly CacheItemPoolInterface $cache,
+        private readonly ProcessTerminator $processTerminator,
+    ) {
         parent::__construct();
     }
 
@@ -36,42 +32,37 @@ final class ServerStopCommand extends Command
         ;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function execute(
         InputInterface $input,
         OutputInterface $output
     ): int {
-        /** @var int|null $serverPid */
-        $serverPid = $this->cache->get(
-            CacheKey::ServerPid->value,
-            function (ItemInterface $item): null {
-                // We want to immediately expire this, as we don't want to / can't compute the value in this case.
-                $item->expiresAt(new DateTime());
-
-                return null;
-            },
-        );
-        $signal = $input->getOption('force')
-            ? self::SIGKILL
-            : self::SIGTERM;
-
-        if ($serverPid === null)  {
+        $cacheItem = $this->cache->getItem(CacheKey::ServerPid->value);
+        if (!$cacheItem->isHit())  {
             $output->writeln('<error>The server is not running.</error>');
 
             return self::FAILURE;
         }
+        /** @var int $serverPid */
+        $serverPid = $cacheItem->get();
+        $result = $input->getOption('force')
+                ? $this->processTerminator->forceStop($serverPid)
+                : $this->processTerminator->stop($serverPid);
 
-        if (!Process::kill($serverPid, $signal)) {
+        if (!$result) {
             $output->writeln(sprintf(
                 '<error>Unable to stop the server with PID %d.</error>',
-                $serverPid
+                $serverPid,
             ));
 
             return self::FAILURE;
         }
 
         // If it was force stopped the shutdown handler will not run, which would normally do this.
-        if ($signal === self::SIGKILL) {
-            $this->cache->delete(CacheKey::ServerPid->value);
+        if ($input->getOption('force')) {
+            $this->cache->deleteItem(CacheKey::ServerPid->value);
         }
 
         return self::SUCCESS;

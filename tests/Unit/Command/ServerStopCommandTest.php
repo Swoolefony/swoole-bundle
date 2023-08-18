@@ -7,27 +7,30 @@ namespace Swoolefony\SwooleBundle\Tests\Unit\Command;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
-use Swoole\Process;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
 use Swoolefony\SwooleBundle\Command\ServerStopCommand;
 use Swoolefony\SwooleBundle\Server\CacheKey;
+use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Contracts\Cache\CacheInterface;
 
 #[CoversClass(ServerStopCommand::class)]
 class ServerStopCommandTest extends TestCase
 {
-    private CacheInterface&MockInterface $mockCache;
+    private CacheItemPoolInterface&MockInterface $mockCache;
 
     private InputInterface&MockInterface $mockInput;
 
     private OutputInterface&MockInterface $mockOutput;
 
-    private ServerStopCommand $subject;
+    private ProcessTerminator&MockInterface $mockProcessStopper;
 
-    private Process $testProcess;
+    private CacheItemInterface&MockInterface $mockCacheItem;
+
+    private ServerStopCommand $subject;
 
     public function setUp(): void
     {
@@ -37,33 +40,30 @@ class ServerStopCommandTest extends TestCase
         $mockInput = Mockery::mock(InputInterface::class);
         /** @var OutputInterface&MockInterface $mockOutput */
         $mockOutput = Mockery::mock(OutputInterface::class);
-        /** @var CacheInterface&MockInterface $mockCache */
-        $mockCache = Mockery::mock(CacheInterface::class);
+        /** @var CacheItemPoolInterface&MockInterface $mockCache */
+        $mockCache = Mockery::mock(CacheItemPoolInterface::class);
+        /** @var ProcessTerminator&MockInterface $mockProcessStopper */
+        $mockProcessStopper = Mockery::mock(ProcessTerminator::class);
+        /** @var CacheItemInterface&MockInterface $mockCacheItem */
+        $mockCacheItem = Mockery::mock(CacheItemInterface::class);
 
         $this->mockInput = $mockInput;
         $this->mockOutput = $mockOutput;
         $this->mockCache = $mockCache;
+        $this->mockProcessStopper = $mockProcessStopper;
+        $this->mockCacheItem = $mockCacheItem;
+
+        $mockCache
+            ->shouldReceive('getItem')
+            ->andReturn($mockCacheItem);
 
         $mockOutput->allows(['writeln' => null]);
         $mockInput->allows(['get' => false]);
 
-        $this->subject = new ServerStopCommand($this->mockCache);
-
-        $this->testProcess = new Process(function () {
-            // @phpstan-ignore-next-line
-            while (true) {
-                sleep(1);
-            }
-        });
-        $this->testProcess->setBlocking(false);
-        $this->testProcess->start();
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->testProcess->exit();
+        $this->subject = new ServerStopCommand(
+            cache: $this->mockCache,
+            processTerminator: $this->mockProcessStopper,
+        );
     }
 
     public function testItExitsWithFailureIfTheServerIsNotRunning(): void
@@ -72,9 +72,9 @@ class ServerStopCommandTest extends TestCase
             ->shouldReceive('getOption')
             ->with('force')
             ->andReturn(false);
-        $this->mockCache
-            ->shouldReceive('get')
-            ->andReturn(null);
+        $this->mockCacheItem
+            ->shouldReceive('isHit')
+            ->andReturnFalse();
 
         $result = $this->subject->execute(
             $this->mockInput,
@@ -93,9 +93,17 @@ class ServerStopCommandTest extends TestCase
             ->shouldReceive('getOption')
             ->with('force')
             ->andReturn(false);
-        $this->mockCache
+        $this->mockCacheItem
+            ->shouldReceive('isHit')
+            ->andReturnTrue();
+        $this->mockCacheItem
             ->shouldReceive('get')
-            ->andReturn($this->testProcess->pid);
+            ->andReturn(9001);
+
+        $this->mockProcessStopper
+            ->shouldReceive('stop')
+            ->with(9001)
+            ->andReturnTrue();
 
         $result = $this->subject->execute(
             $this->mockInput,
@@ -116,11 +124,18 @@ class ServerStopCommandTest extends TestCase
             ->shouldReceive('getOption')
             ->with('force')
             ->andReturn(true);
-        $this->mockCache
+        $this->mockCacheItem
+            ->shouldReceive('isHit')
+            ->andReturnTrue();
+        $this->mockCacheItem
             ->shouldReceive('get')
-            ->andReturn($this->testProcess->pid);
+            ->andReturn(9001);
         $this->mockCache
-            ->shouldReceive('delete');
+            ->shouldReceive('deleteItem');
+        $this->mockProcessStopper
+            ->shouldReceive('forceStop')
+            ->with(9001)
+            ->andReturnTrue();
 
         $result = $this->subject->execute(
             $this->mockInput,
@@ -133,7 +148,7 @@ class ServerStopCommandTest extends TestCase
         );
         $this->mockCache
             ->shouldHaveReceived(
-                'delete',
+                'deleteItem',
                 [CacheKey::ServerPid->value]
             );
     }
