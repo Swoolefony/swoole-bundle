@@ -7,6 +7,7 @@ namespace Swoolefony\SwooleBundle\Command;
 use Psr\Cache\CacheItemPoolInterface;
 use Swoole\Coroutine\System;
 use Swoolefony\SwooleBundle\Server\CacheKey;
+use Swoolefony\SwooleBundle\Server\Status;
 use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,29 +41,39 @@ final class ServerStopCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $cacheItem = $this->cache->getItem(CacheKey::ServerPid->value);
+        $cacheItem = $this->cache->getItem(CacheKey::ServerStatus->value);
         if (!$cacheItem->isHit())  {
             $output->writeln('<error>The server is not running.</error>');
 
             return self::FAILURE;
         }
-        /** @var int $serverPid */
-        $serverPid = $cacheItem->get();
-        $result = $input->getOption('force')
-                ? $this->processTerminator->forceStop($serverPid)
-                : $this->processTerminator->stop($serverPid);
+        /** @var Status $serverStatus */
+        $serverStatus = $cacheItem->get();
+        $pids = [
+            $serverStatus->getMainPid(),
+            $serverStatus->getManagerPid(),
+            $serverStatus->getWorkerPid(),
+            $serverStatus->getPhpPid(),
+        ];
 
-        if (!$result) {
-            $output->writeln(sprintf(
-                '<error>Unable to stop the server with PID %d.</error>',
-                $serverPid,
-            ));
+        foreach ($pids as $pid) {
+            $result = $input->getOption('force')
+                ? $this->processTerminator->forceStop($pid)
+                : $this->processTerminator->stop($pid);
 
-            return self::FAILURE;
+            if (!$result) {
+                $output->writeln(sprintf(
+                    '<error>Unable to stop the server with PID %d.</error>',
+                    $pid,
+                ));
+
+                return self::FAILURE;
+            }
         }
 
         // If it was force stopped the shutdown handler will not run, which would normally do this.
         if ($input->getOption('force')) {
+            $this->cache->deleteItem(CacheKey::ServerStatus->value);
             $this->cache->deleteItem(CacheKey::ServerPid->value);
         }
 

@@ -9,6 +9,8 @@ readonly class Status
     public function __construct(
         private int $mainPid,
         private int $managerPid,
+        private int $workerPid,
+        private int $phpPid,
         private int $port,
         private string $ip,
         private Stats $stats,
@@ -28,6 +30,16 @@ readonly class Status
     public function getManagerPid(): int
     {
         return $this->managerPid;
+    }
+
+    public function getWorkerPid(): int
+    {
+        return $this->workerPid;
+    }
+
+    public function getPhpPid(): int
+    {
+        return $this->phpPid;
     }
 
     public function getPort(): int

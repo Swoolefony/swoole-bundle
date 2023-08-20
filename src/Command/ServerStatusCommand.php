@@ -33,58 +33,41 @@ final class ServerStatusCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ): int {
-        $serverPidItem = $this->cache->getItem(CacheKey::ServerPid->value);
         $serverStatusItem = $this->cache->getItem(CacheKey::ServerStatus->value);
 
-        if (!$serverPidItem->isHit()) {
+        if (!$serverStatusItem->isHit()) {
             $output->writeln('The server is not running.');
 
             return 1;
         }
-        /** @var Status|null $serverStatus */
-        $serverStatus = $serverStatusItem->isHit()
-            ? $serverStatusItem->get()
-            : null;
+        /** @var Status $serverStatus */
+        $serverStatus = $serverStatusItem->get();
+        $stats = $serverStatus->getStats()->toArray();
 
-        /** @var int $serverPid */
-        $serverPid = $serverPidItem->get();
-
-        $rowHeaders = ['pid'];
-        $rowValues = [$serverPid];
-
-        if ($serverStatus !== null) {
-            $rowHeaders = [
-                ...$rowHeaders,
-                'ip',
-                'port',
-                'main_pid',
-                'worker_pid',
-            ];
-            $rowValues = [
-                ...$rowValues,
-                $serverStatus->getIp(),
-                $serverStatus->getPort(),
-                $serverStatus->getMainPid(),
-                $serverStatus->getManagerPid(),
-            ];
-
-            $stats = $serverStatus->getStats()->toArray();
-
-            $rowHeaders = [
-                ...$rowHeaders,
-                ...array_keys($stats),
-            ];
-            $rowValues = [
-                ...$rowValues,
-                /** @phpstan-ignore-next-line $rowValues */
-                ...array_values(self::statusArrayTransform($stats)),
-            ];
-        }
+        $rowHeaders = [
+            'ip',
+            'port',
+            'php_pid',
+            'main_pid',
+            'manager_pid',
+            'worker_pid',
+            ...array_keys($stats),
+        ];
+        $rowValues = [
+            $serverStatus->getIp(),
+            $serverStatus->getPort(),
+            $serverStatus->getPhpPid(),
+            $serverStatus->getMainPid(),
+            $serverStatus->getManagerPid(),
+            $serverStatus->getWorkerPid(),
+            /** @phpstan-ignore-next-line */
+            ...array_values(self::statusArrayTransform($stats)),
+        ];
 
         (new Table($output))
             ->setHeaderTitle(sprintf(
                 'The server is running on PID %d',
-                $serverPid,
+                $serverStatus->getPhpPid(),
             ))
             ->setHeaders($rowHeaders)
             ->setRows([$rowValues])

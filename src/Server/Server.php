@@ -2,18 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Swoolefony\SwooleBundle\Server\Type;
+namespace Swoolefony\SwooleBundle\Server;
 
 use RuntimeException;
 use Swoole\Http\Server as SwooleServer;
-use Swoolefony\SwooleBundle\Server\EventName;
-use Swoolefony\SwooleBundle\Server\HandlerFactory;
-use Swoolefony\SwooleBundle\Server\Options;
-use Swoolefony\SwooleBundle\Server\Stats;
-use Swoolefony\SwooleBundle\Server\ServerInterface;
-use Swoolefony\SwooleBundle\Server\Status;
 
-class HttpServer implements ServerInterface
+class Server implements ServerInterface
 {
     private const HANDLED_EVENTS = [
         EventName::Request,
@@ -21,6 +15,8 @@ class HttpServer implements ServerInterface
         EventName::Shutdown,
         EventName::Task,
     ];
+
+    private int $pid;
 
     private ?SwooleServer $swooleServer = null;
 
@@ -33,6 +29,12 @@ class HttpServer implements ServerInterface
 
     public function run(): void
     {
+        $pid = getmypid();
+        if ($pid === false) {
+            throw new RuntimeException('Unable to get the current process pid.');
+        }
+        $this->pid = $pid;
+
         if (!$this->server()->start()) {
             throw new RuntimeException('Unable to start HTTP server.');
         }
@@ -47,11 +49,25 @@ class HttpServer implements ServerInterface
 
     public function getStatus(): Status
     {
+        $mainPid = $this->server()->getMasterPid();
+        $managerPid = $this->server()->getManagerPid();
+        $workerPid = $this->server()->getWorkerPid();
+
+        if (!is_int($mainPid)) {
+            throw new \UnexpectedValueException('Unable to get the main pid.');
+        }
+        if (!is_int($managerPid)) {
+            throw new \UnexpectedValueException('Unable to get the manager pid.');
+        }
+        if (!is_int($workerPid)) {
+            throw new \UnexpectedValueException('Unable to get the worker pid.');
+        }
+
         return new Status(
-            /** @phpstan-ignore-next-line */
-            mainPid: $this->server()->getMasterPid(),
-            /** @phpstan-ignore-next-line */
-            managerPid: $this->server()->getMasterPid(),
+            mainPid: $mainPid,
+            managerPid: $managerPid,
+            workerPid: $workerPid,
+            phpPid: $this->pid,
             port: $this->server()->port,
             ip: $this->server()->host,
             stats: new Stats((array) $this->server()->stats())

@@ -11,6 +11,8 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Swoolefony\SwooleBundle\Command\ServerStopCommand;
 use Swoolefony\SwooleBundle\Server\CacheKey;
+use Swoolefony\SwooleBundle\Server\Stats;
+use Swoolefony\SwooleBundle\Server\Status;
 use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
 use Swoolefony\SwooleBundle\Tests\Unit\TestCase;
 use Symfony\Component\Console\Command\Command;
@@ -98,11 +100,18 @@ class ServerStopCommandTest extends TestCase
             ->andReturnTrue();
         $this->mockCacheItem
             ->shouldReceive('get')
-            ->andReturn(9001);
+            ->andReturn(new Status(
+                mainPid: 1,
+                managerPid: 3,
+                workerPid: 4,
+                phpPid: 2,
+                port: 808,
+                ip: 'localhost',
+                stats: new Stats([]),
+            ));
 
         $this->mockProcessStopper
             ->shouldReceive('stop')
-            ->with(9001)
             ->andReturnTrue();
 
         $result = $this->subject->execute(
@@ -129,12 +138,19 @@ class ServerStopCommandTest extends TestCase
             ->andReturnTrue();
         $this->mockCacheItem
             ->shouldReceive('get')
-            ->andReturn(9001);
+            ->andReturn(new Status(
+                mainPid: 1,
+                managerPid: 3,
+                workerPid: 4,
+                phpPid: 2,
+                port: 808,
+                ip: 'localhost',
+                stats: new Stats([]),
+            ));
         $this->mockCache
             ->shouldReceive('deleteItem');
         $this->mockProcessStopper
             ->shouldReceive('forceStop')
-            ->with(9001)
             ->andReturnTrue();
 
         $result = $this->subject->execute(

@@ -6,8 +6,6 @@ namespace Swoolefony\SwooleBundle\Server;
 
 use RuntimeException;
 use Swoolefony\SwooleBundle\Runtime\Mode;
-use Swoolefony\SwooleBundle\Server\Type\HttpServer as HttpServer;
-use Swoolefony\SwooleBundle\Server\Type\WebsocketServer;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class ServerFactory
@@ -25,14 +23,18 @@ class ServerFactory
                 $options,
                 $app,
             ),
-            Mode::Websocket => new WebsocketServer($options),
+            Mode::Websocket => new Server(
+                options: $options,
+                handlerFactory: $this->handlerFactory,
+                app: $app,
+            ),
         };
     }
 
     private function makeHttpServer(
         Options $options,
         object $app,
-    ): HttpServer {
+    ): Server {
         if (!$app instanceof HttpKernelInterface) {
             throw new RuntimeException(sprintf(
                 'Class of "%s" not supported for mode HTTP. Must be an instance of %s.',
@@ -41,7 +43,7 @@ class ServerFactory
             ));
         }
 
-        return new HttpServer(
+        return new Server(
             options: $options,
             handlerFactory: $this->handlerFactory,
             app: $app,
