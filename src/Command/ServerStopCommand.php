@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Swoolefony\SwooleBundle\Command;
 
 use Psr\Cache\CacheItemPoolInterface;
-use Swoole\Coroutine\System;
 use Swoolefony\SwooleBundle\Server\CacheKey;
 use Swoolefony\SwooleBundle\Server\Status;
 use Swoolefony\SwooleBundle\Swoole\ProcessTerminator;
@@ -57,6 +56,11 @@ final class ServerStopCommand extends Command
         ];
 
         foreach ($pids as $pid) {
+            // If we daemonized, we ignore the potentially null php pid.
+            if ($pid === null) {
+                continue;
+            }
+
             $result = $input->getOption('force')
                 ? $this->processTerminator->forceStop($pid)
                 : $this->processTerminator->stop($pid);

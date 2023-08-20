@@ -56,7 +56,7 @@ final class ServerStatusCommand extends Command
         $rowValues = [
             $serverStatus->getIp(),
             $serverStatus->getPort(),
-            $serverStatus->getPhpPid(),
+            $serverStatus->getPhpPid() ?? "<None; daemonized>",
             $serverStatus->getMainPid(),
             $serverStatus->getManagerPid(),
             $serverStatus->getWorkerPid(),
@@ -67,7 +67,7 @@ final class ServerStatusCommand extends Command
         (new Table($output))
             ->setHeaderTitle(sprintf(
                 'The server is running on PID %d',
-                $serverStatus->getPhpPid(),
+                $serverStatus->getPhpPid() ?? $serverStatus->getMainPid(),
             ))
             ->setHeaders($rowHeaders)
             ->setRows([$rowValues])

@@ -10,7 +10,7 @@ readonly class Status
         private int $mainPid,
         private int $managerPid,
         private int $workerPid,
-        private int $phpPid,
+        private ?int $phpPid,
         private int $port,
         private string $ip,
         private Stats $stats,
@@ -37,7 +37,7 @@ readonly class Status
         return $this->workerPid;
     }
 
-    public function getPhpPid(): int
+    public function getPhpPid(): ?int
     {
         return $this->phpPid;
     }
