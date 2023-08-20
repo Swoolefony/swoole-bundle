@@ -67,7 +67,7 @@ class Server implements ServerInterface
             mainPid: $mainPid,
             managerPid: $managerPid,
             workerPid: $workerPid,
-            phpPid: $this->pid,
+            phpPid: $this->options->shouldDaemonize() ? null : $this->pid,
             port: $this->server()->port,
             ip: $this->server()->host,
             stats: new Stats((array) $this->server()->stats())
